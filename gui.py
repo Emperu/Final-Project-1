@@ -4,6 +4,7 @@ from PyQt5.QtGui import QIntValidator, QFont
 from PyQt5.QtCore import Qt
 from logic import vote
 from logic import john_votes, jane_votes, total_votes
+from logic import process_vote
 
 
 
@@ -23,7 +24,6 @@ class GuiWindow(QMainWindow):
         self.lineEdit = QLineEdit()
         self.lineEdit.setValidator(QIntValidator())
 
-        # Create a horizontal box layout for the ID label and input field
         id_layout = QHBoxLayout()
         id_layout.addWidget(self.label_ID)
         id_layout.addWidget(self.lineEdit)
@@ -31,12 +31,10 @@ class GuiWindow(QMainWindow):
         self.radioButtonJohn = QRadioButton("John")
         self.radioButtonJane = QRadioButton("Jane")
 
-        # Replace QHBoxLayout with QVBoxLayout for the radio buttons
         radio_layout = QVBoxLayout()
         radio_layout.addWidget(self.radioButtonJohn)
         radio_layout.addWidget(self.radioButtonJane)
 
-        # Create a QHBoxLayout and add QVBoxLayout into it for centering radio buttons.
         center_radio_layout = QHBoxLayout()
         center_radio_layout.addStretch(1)
         center_radio_layout.addLayout(radio_layout)
@@ -45,7 +43,6 @@ class GuiWindow(QMainWindow):
         self.pushButton_vote = QPushButton("SUBMIT VOTE")
         self.pushButton_vote.clicked.connect(self.buttonClicked)
 
-        # Use QVBoxLayout for the main layout and add the new layouts
         layout = QVBoxLayout()
         layout.addWidget(self.label_title)
         layout.addLayout(id_layout)
@@ -74,29 +71,16 @@ class GuiWindow(QMainWindow):
 
     def buttonClicked(self):
         id_code = self.lineEdit.text()
-
-        if id_code == "":
-            error_dialog = QErrorMessage(self)
-            error_dialog.showMessage('Please enter an ID.')
-            return
-
         candidate = 0
         if self.radioButtonJohn.isChecked():
             candidate = 1
         elif self.radioButtonJane.isChecked():
             candidate = 2
 
-        # Check if a candidate is selected
-        if candidate == 0:
+        labels = [self.label_John_votes, self.label_Jane_votes, self.label_total_votes]
+
+        error_message = process_vote(id_code, candidate, self, labels)
+        if error_message:
             error_dialog = QErrorMessage(self)
-            error_dialog.showMessage('Please select a candidate.')
-            return
-
-        vote(candidate, id_code, self)
-
-        from logic import john_votes, jane_votes, total_votes
-        self.label_John_votes.setText(f"John Votes: {john_votes}")
-        self.label_Jane_votes.setText(f"Jane Votes: {jane_votes}")
-        self.label_total_votes.setText(f"Total Votes: {total_votes}")
-
-
+            error_dialog.showMessage(error_message)
+            error_dialog.exec()

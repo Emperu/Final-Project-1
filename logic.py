@@ -24,3 +24,21 @@ def vote(candidate, id_code, window):
     total_votes += 1
     voter_ids[id_code] = candidate
     print(f'John-{john_votes}, Jane-{jane_votes}, Total-{total_votes}')
+
+# logic.py
+def process_vote(id_code, candidate, window, labels):
+    if id_code == "":
+        return "Please enter an ID."
+
+    if candidate == 0:
+        return "Please select a candidate."
+
+    vote(candidate, id_code, window)
+
+    from logic import john_votes, jane_votes, total_votes
+    labels[0].setText(f"John Votes: {john_votes}")
+    labels[1].setText(f"Jane Votes: {jane_votes}")
+    labels[2].setText(f"Total Votes: {total_votes}")
+
+    return ""
+
